@@ -1,0 +1,62 @@
+---
+title: "Case1"
+author: "Julia"
+date: "2023-11-07"
+output: html_document
+---
+```{r}
+library(ggplot2)
+```
+
+
+# loading data
+```{r}
+load("./A.RData")
+load("./B1.RData")
+load("./B2.RData")
+```
+
+```{r}
+# 1. mean and sd
+meanSD <- data.frame(
+  ERi = apply(nominal[-1], 2, mean),
+  SDi = apply(nominal[-1], 2, sd))
+# 2. correlation
+correlation <- cor(nominal[-1])
+# 3. covariance
+covariance <- cov(nominal[-1])
+```
+
+```{r}
+n_portfolios <- 1000
+set.seed(123)
+portfolios <- matrix(nrow = n_portfolios, ncol = 6)
+
+for (i in 1:n_portfolios){
+  weights <- runif(6)
+  weights <- weights/ sum(weights)
+  portfolios[i,] <- weights
+}
+
+portfolio_Rsd <- data.frame(
+  return = rowSums(meanSD$ERi*portfolios),
+  sd = 
+)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
