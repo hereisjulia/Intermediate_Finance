@@ -6,6 +6,7 @@ output: html_document
 ---
 ```{r}
 library(ggplot2)
+library(PortfolioAnalytics)
 ```
 
 
@@ -15,6 +16,9 @@ load("./A.RData")
 load("./B1.RData")
 load("./B2.RData")
 ```
+
+# PART A
+
 
 ```{r}
 # 1. mean and sd
@@ -26,6 +30,7 @@ correlation <- cor(nominal[-1])
 # 3. covariance
 covariance <- cov(nominal[-1])
 ```
+
 
 ```{r}
 n_portfolios <- 1000
@@ -40,11 +45,25 @@ for (i in 1:n_portfolios){
 
 portfolio_Rsd <- data.frame(
   return = rowSums(meanSD$ERi*portfolios),
-  sd = 
+  sd =  sqrt(rowSums(portfolios %*% (covariance %*% t(portfolios))))
 )
+
+
+ggplot(portfolio_Rsd, aes(x = sd, y = return)) +
+  geom_point() +
+  labs(title = "Mean-Standard Deviation Frontier", x = "Standard Deviation (Risk)", y = "Expected Return")
 ```
 
 
+# PART B1
+
+```{r}
+MeanSD <- data.frame(
+  return = B1$mean,
+  sd = B1$sd
+)
+rownames(MeanSD) <- c("short-term bonds", "medium-term bonds", "long-term bonds", "Canadian equity", "US equity", "non-North American equity")
+```
 
 
 

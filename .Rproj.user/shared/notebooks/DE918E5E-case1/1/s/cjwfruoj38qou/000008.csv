@@ -1,8 +1,0 @@
-"0","portfolio_Rsd <- data.frame(
-  return = rowSums(meanSD$ERi*portfolios),
-  sd = sqrt(rowSums(portfolios * (covariance %*% t(portfolios))))
-)
-"
-"2","Error in portfolios * (covariance %*% t(portfolios)) : 
-  non-conformable arrays
-"
