@@ -1,0 +1,85 @@
+#Code for Part A
+
+
+# Step 1: Load the data
+load("./A.RData")
+A <- nominal[,2:5]
+meanSD <- data.frame(
+  mean = apply(A, 2, mean),
+  SD = apply(A, 2, sd))
+correlation <- cor(nominal[-1])[1:4,1:4]
+covariance <- cov(nominal[-1])[1:4,1:4]
+rf <- mean(nominal[,5])
+
+# Define the number of portfolio simulations
+n_simulations <- 50000
+
+# Create an empty matrix to store simulation results
+portfolios <- matrix(nrow = n_simulations, ncol = 7)
+
+# Step 2: Loop through simulations and calculate mean standard deviation frontier
+for (i in 1:n_simulations) {
+  # Generate random weights for asset classes
+  weights <- runif(4)
+  weights <- weights / sum(weights)  # Normalize to ensure they sum up to 1
+  
+  # Calculate portfolio mean return and standard deviation
+  portfolio_mean <- sum(weights * meanSD$mean)
+  portfolio_sd <- sqrt(t(weights) %*% (correlation %*% weights))
+  portfolio_sharpe <- (portfolio_mean - rf) / portfolio_sd  # Sharpe ratio
+  
+  # Store the results in the matrix
+  portfolios[i, ] <- c(weights, portfolio_mean, portfolio_sd, portfolio_sharpe)
+}
+
+
+# Create a data frame from the matrix
+portfolios_df <- as.data.frame(portfolios)
+colnames(portfolios_df) <- c("weights1","weights2","weights3","weights4", "Mean Return", "Standard Deviation", "Sharpe Ratio")
+
+
+# Step 3: Print the data frame
+print(head(portfolios_df))
+
+# Step 4: Plot the efficient frontier
+library(ggplot2)
+
+ggplot(portfolios_df, aes(x = `Standard Deviation`, y = `Mean Return`, color = `Sharpe Ratio`)) +
+  geom_point() +
+  labs(title = "Efficient Frontier",
+       x = "Standard Deviation (Risk)",
+       y = "Mean Return",
+       color = "Sharpe Ratio") +
+  geom_abline(intercept = rf, slope = max(portfolios_df$`Sharpe Ratio`), color = "red", size = 1)+
+  theme_minimal()
+
+
+# Step 5: Get MSR & GMV & 5 Risk Aversion portfolios
+MSR <- portfolios_df %>% filter(portfolios_df$`Sharpe Ratio` ==max(portfolios_df$`Sharpe Ratio`))
+MSR
+GMV <- portfolios_df %>% filter(portfolios_df$`Standard Deviation` == min(portfolios_df$`Standard Deviation`))
+GMV
+AllPortfolio <- rbind(MSR,GMV) 
+name <- data.frame(Portfolio = c("MSR","GMV"))
+AllPortfolio <- cbind(name, AllPortfolio)
+
+Aportfolios <- data.frame(
+  A = c(1.3, 2.8, 6.5, 10.5, 16.9),
+  weight1 = (MSR$`Mean Return`- rf)/ (A*MSR$`Standard Deviation`^2)) %>%
+  mutate(weight2 = 1-weight1)%>% 
+  mutate(weight3 = NA,
+         weight4 = NA,
+        `Mean Return` = MSR$`Mean Return`*weight1 + rf*weight2, 
+         `Standard Deviation` = MSR$`Standard Deviation`*weight1) %>%
+  mutate(`Sharpe Ratio` = (`Mean Return` - rf)/`Standard Deviation`)
+names(Aportfolios) <- names(AllPortfolio)
+
+AllPortfolio <- rbind(AllPortfolio,Aportfolios)
+AllPortfolio
+
+# Step 6: plot all the portfolios
+
+ggplot()+
+  geom_point(data = AllPortfolio[4:7,], aes(x = `Standard Deviation`, y = `Mean Return`, color = Portfolio))
+
+

@@ -1,0 +1,8 @@
+"0","portfolio_Rsd <- data.frame(
+  return = rowSums(meanSD$ERi*all_weights),
+  sd =  sqrt(rowSums(all_weights %*% (covariance %*% t(all_weights))))
+)
+"
+"2","Error in rowSums(meanSD$ERi * all_weights) : 
+  'x' must be an array of at least two dimensions
+"
