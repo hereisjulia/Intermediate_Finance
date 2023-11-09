@@ -1,0 +1,10 @@
+"0","for(i in seq_along(TargetER)){
+  constraints = list(w >=0, sum(w)==1, r==TargetER[i])
+  prob = Problem(Minimize(obj), constraints)
+  result = solve(prob)
+  alloc.frontier[i,] = result$getValue(w)
+  std.frontier[i] = result$getValue(sqrt(var))
+}
+"
+"2","Error: object 'obj' not found
+"

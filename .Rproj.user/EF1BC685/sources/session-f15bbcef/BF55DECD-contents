@@ -1,0 +1,134 @@
+---
+title: "PartB"
+author: "Julia"
+date: "2023-11-09"
+output: html_document
+---
+# B1
+
+```{r}
+library(CVXR)
+
+# load data
+load("./B1.RData")
+
+mean <- B1$mean
+sd <- B1$sd
+cor <- B1$cor
+rf <- B1$rf
+VCV <- sd %*% t(sd) *cor
+```
+
+```{r}
+# simulating
+
+nasset <- 6
+TargetER <- seq(0.012, 0.071, by = 0.001)
+w <- Variable(nasset)
+r = t(w) %*% mean
+var = quad_form(w, VCV)
+obj = var
+alloc.frontier = matrix(0, nrow = length(TargetER), ncol = nasset)
+std.frontier = rep(0, length(TargetER))
+
+for(i in seq_along(TargetER)){
+  constraints = list(w >=0, sum(w)==1, r==TargetER[i])
+  prob = Problem(Minimize(obj), constraints)
+  result = solve(prob)
+  alloc.frontier[i,] = result$getValue(w)
+  std.frontier[i] = result$getValue(sqrt(var))
+}
+ER.frontier = TargetER
+```
+
+```{r}
+# draw the estimated efficient frontier
+
+plot(std.frontier, ER.frontier,
+     type = "l", col = "blue", lwd = 2,
+     main = "MVF Constrained",
+     xlab = "Portfolio Standard Deviation",
+     ylab = "Portfolio Expected Return",
+     xlim = c(0, 0.25), ylim = c(0, 0.08),
+     xaxt = "n", yaxt = "n")
+axis(1, at = seq(0, 0.25, by = 0.05), labels = paste0(seq(0, 25, by = 5), ".00%"))
+axis(2, at = seq(0, 0.08, by = 0.01), labels = paste0(seq(0, 8, by = 1), ".00%"), las = 2)
+```
+
+```{r}
+# increase mean by 10%
+mean1 <- mean *1.1
+
+TargetER <- seq(0.012, 0.071, by = 0.001)
+r1 = t(w) %*% mean1
+std.frontier1 = rep(0, length(TargetER))
+
+for(i in seq_along(TargetER)){
+  constraints = list(w >=0, sum(w)==1, r1==TargetER[i])
+  prob = Problem(Minimize(obj), constraints)
+  result = solve(prob)
+  alloc.frontier[i,] = result$getValue(w)
+  std.frontier1[i] = result$getValue(sqrt(var))
+}
+```
+
+```{r}
+# increase sd by 1%
+sd1 <- sd *1.1
+VCV1 <- sd1 %*% t(sd1) *cor
+
+var1 = quad_form(w, VCV1)
+obj1 = var1
+std.frontier2 = rep(0, length(TargetER))
+
+for(i in seq_along(TargetER)){
+  constraints = list(w >=0, sum(w)==1, r==TargetER[i])
+  prob = Problem(Minimize(obj1), constraints)
+  result = solve(prob)
+  alloc.frontier[i,] = result$getValue(w)
+  std.frontier2[i] = result$getValue(sqrt(var1))
+}
+```
+```{r}
+ggplot()+
+  geom_line(aes(x = std.frontier, y = ER.frontier), color = "blue")+
+  labs( title = "M-SD Frontier", x = "Portfolio Standard Deviation",
+     y = "Portfolio Expected Return")+
+  theme_minimal()
+```
+
+
+```{r}
+library(ggplot2)
+color = c("#000000", "#005AB5", "#007979")
+
+ggplot()+
+  geom_line(aes(x = std.frontier, y = ER.frontier), color = color[1])+
+  geom_line(aes(x = std.frontier1, y = ER.frontier), color = color[2])+
+  geom_line(aes(x = std.frontier2, y = ER.frontier), color = color[3])+
+  labs( title = "M-SD Frontier", x = "Portfolio Standard Deviation",
+     y = "Portfolio Expected Return",)+
+  geom_text(label = c("estimated", "ER increase 10%", "SD increase 10%"), aes(x = c( std.frontier[60]-0.003,std.frontier1[60], std.frontier2[60]-0.0025), y = ER.frontier[60] +0.002), color = color, size = 2.5)+
+  theme_minimal()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
