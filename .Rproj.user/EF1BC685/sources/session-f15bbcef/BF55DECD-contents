@@ -108,13 +108,21 @@ ggplot()+
   geom_line(aes(x = std.frontier2, y = ER.frontier), color = color[3])+
   labs( title = "M-SD Frontier", x = "Portfolio Standard Deviation",
      y = "Portfolio Expected Return",)+
-  geom_text(label = c("estimated", "ER increase 10%", "SD increase 10%"), aes(x = c( std.frontier[60]-0.003,std.frontier1[60], std.frontier2[60]-0.0025), y = ER.frontier[60] +0.002), color = color, size = 2.5)+
+  geom_text(label = c("estimated", "ER increase 10%", "SD increase 10%"), aes(x = c( std.frontier[60]-0.01,std.frontier1[60], std.frontier2[60]-0.007), y = ER.frontier[60] +0.002), color = color, size = 3)+
   theme_minimal()
 ```
 
 
 
 
+```{r}
+FrontierData <- data.frame(
+  Expected_Return = ER.frontier,
+  Standard_deviation = std.frontier,
+  Sharpe_ratio = (ER.frontier - rf)/std.frontier
+)
+FrontierData
+```
 
 
 

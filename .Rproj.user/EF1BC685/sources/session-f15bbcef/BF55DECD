@@ -3,7 +3,7 @@
     "path": "E:/MQM_Courses/Term3/Intermediate finance/Intermediate_Finance/case1B1.Rmd",
     "project_path": "case1B1.Rmd",
     "type": "r_markdown",
-    "hash": "1401617844",
+    "hash": "3380556673",
     "contents": "",
     "dirty": false,
     "created": 1699565215324.0,
@@ -13,15 +13,15 @@
         "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "75,19",
-        "scrollLine": "59"
+        "cursorPosition": "124,0",
+        "scrollLine": "121"
     },
     "folds": "",
-    "lastKnownWriteTime": 1699571489,
+    "lastKnownWriteTime": 1699574738,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1699571489955,
+    "last_content_update": 1699574738594,
     "read_only": false,
     "read_only_alternatives": []
 }
