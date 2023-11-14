@@ -1,5 +1,0 @@
-"0","# 3. covariance
-covariance <- cov(nominal[-1]))[1:4,1:4]
-"
-"2","Error: unexpected ')' in ""covariance <- cov(nominal[-1]))""
-"

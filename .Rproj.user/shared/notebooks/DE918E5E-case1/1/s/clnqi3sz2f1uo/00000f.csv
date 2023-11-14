@@ -1,6 +1,0 @@
-"0","names(MeanSD) <- c(""short-term bonds"", ""medium-term bonds"", ""long-term 
-bonds"", ""Canadian equity"", ""US equity"", ""non-North American equity"")
-"
-"2","Error in names(MeanSD) <- c(""short-term bonds"", ""medium-term bonds"", ""long-term \nbonds"",  : 
-  'names' attribute [6] must be the same length as the vector [2]
-"

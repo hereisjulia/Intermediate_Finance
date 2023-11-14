@@ -1,0 +1,34 @@
+---
+title: "Case2"
+author: "Julia"
+date: "2023-11-14"
+output: html_document
+---
+
+```{r}
+load("./data_2.RData")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
