@@ -1,27 +1,27 @@
 {
-    "id": "0A6D6432",
-    "path": "E:/MQM_Courses/Term3/Intermediate finance/Intermediate_Finance/case2.Rmd",
-    "project_path": "case2.Rmd",
+    "id": "CC5A4150",
+    "path": "E:/MQM_Courses/Term3/Intermediate finance/Intermediate_Finance/cT.Rmd",
+    "project_path": "cT.Rmd",
     "type": "r_markdown",
-    "hash": "1121908787",
+    "hash": "4065532283",
     "contents": "",
     "dirty": false,
-    "created": 1699967807112.0,
+    "created": 1701026234033.0,
     "source_on_save": false,
     "relative_order": 1,
     "properties": {
         "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "207,0",
-        "scrollLine": "196"
+        "cursorPosition": "60,0",
+        "scrollLine": "53"
     },
     "folds": "",
-    "lastKnownWriteTime": 1700198685,
+    "lastKnownWriteTime": 1701038135,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1700198685113,
+    "last_content_update": 1701038135241,
     "read_only": false,
     "read_only_alternatives": []
 }

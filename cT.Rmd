@@ -1,0 +1,72 @@
+---
+title: "criticalThinking"
+author: "Julia"
+date: "2023-11-26"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+## Package calling
+```{r}
+library(readxl)
+```
+## Load and Clean Data
+Seperate them into 2 sets, old and new algorithms. The total duration of testing is 30 days.
+```{r}
+namesADJ <- c("Algorithm", "Date", "Impressions", "Completes", "Clicks","Installs","eRPM")
+Vungle <- read_excel("./Vungle Data.xlsx")
+old <- Vungle[1:7]
+new <- Vungle[10:16]
+names(old) <- namesADJ
+names(new) <- namesADJ
+Vungle <- rbind(old,new)
+Vungle
+```
+
+**1. The case presents a number of metrics in Figure 1, which shows the "advertising funnel".  Which is the best metric to evaluate to decide whether to go with the new algorithm? **
+
+In figure 1, the goal is to make potential customers install their app. Therefore, "Conversion Rate" would be the best metric to evaluate the algorithms. However, there are still other factors that might affect this statement. For example, if the new algorithm reduced the impression, then the comparison between their conversion rates would be invalid.
+
+Outside of the figure, as the article states, it would also be a good idea to use eRPM, effective revenue per 1,000 impressions.
+
+**2. What is your hypothesis?  Test your hypothesis to reach a conclusion (you can use any software for this).**
+
+To hit a conclusion, I'm conducting an A/B test. The goal is to choose between the old and new ad algorithms, while the main metric is eRPM. First, I need to set up my hypothesis.
+
+* H0: eRPMnew <= eRPMold
+* H1: eRPMnew > eRPMold
+
+```{r}
+N.old <- nrow(old)
+N.new <- nrow(new)
+u.old <- mean(old$eRPM)
+u.new <- mean(new$eRPM)
+sd.old <- sd(old$eRPM)
+sd.new <- sd(new$eRPM)
+se.old <- sd.old/sqrt(N.old)
+se.new <- sd.new/sqrt(N.new)
+
+tstat <- (u.new - u.old)/sqrt(se.old^2 + se.new^2)
+pnorm(tstat, lower.tail = F)
+# p value of 0.06597736 < 0.05
+```
+Since the P-value isn't significant enough to reject our null hypothesis, we cannot conclude that the new algorithm is better than the old one.
+
+**3. Based on your analysis of the data, what would you advise Jaffer regarding the performance of the new data science algorithm? Is there enough data to decide that Vungle should switch to algorithm B.**
+First, considered the cost of changing their algorithm, since so far the gap is not really big between them, it might be a good idea to do cost-benefit analysis. Besides, though it seems that B (new algorithm) has the potential to outperform A, the data still couldn't affirm this. Given that the significant level is not enough, it'd be better if Jaffer allowed the A/B testing to be longer so the analysis could be more accurate. 
+
+**4. What assumptions underlie your analysis?**
+* The eRPM will be normal distribution.
+
+
+
+
+
+
+
+
+
+
+
+
