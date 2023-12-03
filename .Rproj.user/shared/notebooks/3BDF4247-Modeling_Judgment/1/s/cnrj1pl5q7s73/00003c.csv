@@ -1,0 +1,4 @@
+"0","Greg <- read_excel(""./CriticalThinking/predictions.xlsx"", sheet = sheet_names[1])
+"
+"2","Error: `path` does not exist: ‘./CriticalThinking/predictions.xlsx’
+"
