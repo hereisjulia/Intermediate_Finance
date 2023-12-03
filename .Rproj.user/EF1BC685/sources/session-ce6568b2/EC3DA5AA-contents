@@ -48,19 +48,19 @@ strip_yield
 ```
 
 ```{r}
-Ft = dt2[, 1:15]
-yt = dt2[, 16:30]
-rec = dt2[, 31]
+Ft = dt2[, 1:15]    # equity futures mid prices
+yt = dt2[, 16:30]   # risk free yield
+rec = dt2[, 31]     # recession or not
 n = nrow(Ft)
 p = ncol(Ft)
 s = 1:7
-ret_1 = NULL
+ret_1 = NULL        # price to return rate (monthly)
 for(i in 1:(n-1)) {
   r = Ft[i+1, 2*s] / Ft[i, 2*s+1] - 1
   ret_1 = rbind(ret_1, r)
 }
 
-ret_12 = NULL
+ret_12 = NULL      # price to return rate (yearly)
 for(i in 1:(n-12)) {
   r = Ft[i+12, 2*s-1] / Ft[i, 2*s+1] -1
   ret_12 = rbind(ret_12, r)
@@ -108,6 +108,7 @@ rownames(strip_returns) = c('Mean Monthly Return (%)', 'Monthly Standard Deviati
 strip_returns[-c(3,6),] = strip_returns[-c(3,6),] * 100
 strip_returns[c(2,3,5,6),8] = NA
 Tb2_Strip_Returns <- round(strip_returns,2)
+Tb2_Strip_Returns
 ```
 ```{r}
 library(ggplot2)
@@ -141,21 +142,56 @@ ggplot(data=plotDataQ2, aes(x = maturity, y = `Annualized Sharpe`, group = 1))+
 
 F_bid = dt3[, 1:15]
 F_ask = dt3[, 16:30]
-rec = dt3[,31]
-s = 1:7
+rec = dt3[,31]    #recession or not
+s = 1:7           # time series
 spread = (F_ask[, s*2+1] - F_bid[, s*2+1]) / (0.5 * (F_ask[, s*2+1] + F_bid[, s*2+1]))
 mean = colMeans(spread)
 sd = apply(spread, MARGIN = 2, sd)
-mean.r = colMeans(spread[rec == 1,])
-mean.nr = colMeans(spread[rec != 1,])
+mean.r = colMeans(spread[rec == 1,]) # mean spread when recession occurs
+mean.nr = colMeans(spread[rec != 1,]) # mean spread when there's no recession
 BA_spread = rbind(mean, sd, mean.r, mean.nr)
-
+spread
 #Formatting
 colnames(BA_spread) = c(1:7)
 rownames(BA_spread) = c('Mean Spread', 'Standard Deviation Spread', 'Spread in Recession', 'Spread in Non-Recession')
+plotQ3 <- BA_spread
 BA_spread = apply(round(BA_spread * 100, 2), 1:2, function(x) paste0(x, '%'))
 BA_spread
 ```
+```{r plotting}
+# How would this impact vary by maturity based on the bid-ask spreads we observe here?
+plotDataQ3 <- round(as.data.frame(plotQ3)*100,2)
+plotData_Q3 <- t(rbind(as.data.frame(Tb2_Strip_Returns)[,1:7],plotDataQ3))
+plotData_Q3 <- cbind(as.data.frame(rownames(plotData_Q3)), plotData_Q3)
+names(plotData_Q3)[1] <- "maturity"
+plotData_Q3
+
+plotColor2 <- c("#003087","#408080")
+size <- 0.8
+ggplot(plotData_Q3) +
+  geom_path(aes(x = maturity, y = `Mean Spread`, group = 1),
+            size = size, color = plotColor2[1]) +
+  labs(title =  "Bid-ask Spreads", linetype = "")  +
+  theme_minimal()
+
+
+
+
+a <- plotData_Q3[,c(1,10,11)] %>% pivot_longer(col = -1, values_to = "spread", names_to = "recessions")
+color_mapping <- c("Spread in Recession" = plotColor2[1],
+                   "Spread in Non-Recession"= plotColor2[2])
+
+ggplot(a)+
+  geom_col(aes(x = maturity, y = spread, fill = recessions), position = "dodge")+
+  labs(title = "spread in recessions/non-recession")+
+  scale_fill_manual(values = color_mapping) +
+  theme_minimal()
+
+
+```
+
+
+
 
 ```{r}
 ###Q4 You are given the continuously compounded yield on the 1 month and 12 month risk free zero coupon securities, which

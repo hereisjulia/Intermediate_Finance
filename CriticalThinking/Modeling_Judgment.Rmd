@@ -1,0 +1,65 @@
+---
+title: "ModelJudgment"
+author: "Julia"
+date: "2023-12-02"
+output: html_document
+---
+
+```{r}
+library(readxl)
+library(tidyverse)
+sheet_names <- c("Greg Judgements", "Smit Judgements", "Julia Judgements", "Freya Judgements", "Leo Judgements")
+Greg <- read_excel("./CriticalThinking/predictions.xlsx", sheet = sheet_names[1])
+Smit <- read_excel("./CriticalThinking/predictions.xlsx", sheet = sheet_names[2])
+Julia <- read_excel("./CriticalThinking/predictions.xlsx", sheet = sheet_names[3])
+Freya <- read_excel("./CriticalThinking/predictions.xlsx", sheet = sheet_names[4])
+Leo <- read_excel("./CriticalThinking/predictions.xlsx", sheet = sheet_names[5])
+```
+
+```{r}
+GregLM <- lm(Greg~., data = Greg)
+SmitLM <- lm(Smit~.,data = Smit)
+JuliaLM <- lm(Julia~.,data = Julia)
+FreyaLM <- lm(Freya~.,data = Freya)
+LeoLM <- lm(Leo~.,data=Leo)
+
+pval <- 0.05
+gregVar <- summary(GregLM)$coefficients[summary(GregLM)$coefficients[,4] < pval,1] %>% round(2)
+smitVar <- summary(SmitLM)$coefficients[summary(SmitLM)$coefficients[,4] < pval,1] %>% round(2)
+juliaVar <- summary(JuliaLM)$coefficients[summary(JuliaLM)$coefficients[,4] < pval,1] %>% round(2)#intercept 62480.7999
+freyaVar <- summary(FreyaLM)$coefficients[summary(FreyaLM)$coefficients[,4] < pval,1] %>% round(2)
+leoVar <- summary(LeoLM)$coefficients[summary(LeoLM)$coefficients[,4] < pval,1] %>% round(2)
+```
+# Step 4: the equation
+```{r}
+print(paste("Greg =", gregVar[1], "+",gregVar[2], "GPAHS", gregVar[3], "AccRate +", gregVar[4], "Endow"))
+print(paste("Smit =", smitVar[1], "+",smitVar[2], "GPAHS"))
+print(paste("Julia = 62480.80 +",juliaVar[1], "Meaning", juliaVar[2], "Stem +", juliaVar[3], "Endow"))
+```
+# Step 5: fitted values and residuals
+```{r}
+data.frame(Greg = Greg$Greg, GregFit = GregLM$fitted.values, GregResid)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
