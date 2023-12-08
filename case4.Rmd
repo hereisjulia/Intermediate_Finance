@@ -1,0 +1,120 @@
+---
+title: "Intermediate Finance case#4"
+author: "Julia"
+date: "2023-12-06"
+output: html_document
+---
+
+
+```{R}
+library(tidyverse)
+load("./data_4.RData")
+str(dt)
+```
+
+# Directions
+
+Do each of the following for each of the five samples “Unconditional/Whole Sample”, “INF1GRW1=1”, “INF2GRW1=1”, “INF1GRW2=1”, and “INF2GRW2=1”:
+
+
+## Direction 1
+a. Calculate the mean monthly nominal return, standard deviation of monthly returns, and monthly Sharpe Ratio for each asset using only the data on that sheet. You may assume that the mean return on the TBill is a good proxy for the nominal risk-free rate in each regime.
+
+```{r}
+INF1GRW1 <- dt %>% filter(INF1GRW1 == 1)
+INF2GRW1 <- dt %>% filter(INF2GRW1 == 1)
+INF1GRW2 <- dt %>% filter(INF1GRW2 == 1)
+INF2GRW2 <- dt %>% filter(INF2GRW2 == 1)
+datas.a <- list(dt, INF1GRW1, INF2GRW1, INF1GRW2, INF2GRW2)
+datasnames.a <- c("Whole Sample", "INF1GRW1", "INF2GRW1", "INF1GRW2", "INF2GRW2")
+
+dtStats.a = NULL
+for (i in seq(1:5)){
+  rf = mean(datas.a[[i]]$Tbill)
+  dtStats.a[[i]] <- data.frame(regime = datasnames.a[i],
+           portfolio = c("Stocks", "Bonds", "Gold", "Commodities", "Tbill"),
+           mean = colMeans(datas.a[[i]][,6:10]),
+           sd = apply(datas.a[[i]][,6:10], 2, sd)) %>%
+    mutate(sharpe = (mean-rf)/sd)}
+
+dtStats.a
+```
+b. Calculate the variance-covariance matrix (VCV) for the four risky assets’ nominal returns (equity, bonds, gold, and commodities) using only the data on that sheet.
+```{r}
+RiskAssets <- dt[,6:9]
+VCV <- cov(RiskAssets)
+```
+
+c. Assume that the next month's return to each asset behaves like a random draw from a multivariate normal distribution with the historical mean and VCV of these asset returns based only on the data in the given sheet. Use elements you have already calculated to calculate the portfolio weights, expected return, expected standard deviation of returns, and expected Sharpe Ratio of the maximal Sharpe Ratio portfolio
+
+d. Repeat step c for the global minimum variance portfolio.
+
+e. Repeat step c for the optimal portfolio allocations for mean variance investors with risk aversion (A in the equations below) of 1.3, 2.8, 6.5, 10.5, and 16.9.
+
+## Direction 2
+2. Create a summary table on the “Summary” sheet which contains: the mean, standard deviation, and Sharpe Ratio of each asset return calculated on each sheet and the weights of the portfolio optimal for a mean-variance investor with a risk aversion of 6.5 calculated on each sheet (the “6.5-Optimal Portfolio”).
+
+## Direction 3
+3. Create a set of portfolio weights by equally weighting the portfolio weights of the 6.5-Optimal Portfolio calculated for each regime (not the Unconditional data set, so the weights will each be .25). Call this the Static – EW Portfolio. Now create 4 more sets of portfolio weights, each by weighting one regime 1/2 and the other three at 1/6, naming each Tilt – “Regime” (e.g “Tilt – INF1GRW1”) based on the regime it overweights.
+
+
+
+## Direction 4
+4. Estimate the Sharpe ratio of each 6.5-Optimal Portfolio and the Static and Tilted Portfolios in each regime and in the unconditional (full) data set. Thus you will have a 10x5 table of Sharpe Ratios, Unconditional in Unconditional, Unconditional in INF1GRW1, etc. You may use the VCV and mean returns calculated in each regime to create these estimates.
+
+# Questions
+
+3. Present (~2 Slides): Present your table of the Sharpe Ratio of each portfolio in each regime in an attractive and readable manner and summarize the conclusions that can be drawn from them.
+```{r}
+datasq3 <- rbind(dtStats.a[[1]],dtStats.a[[2]], dtStats.a[[3]],dtStats.a[[4]],dtStats.a[[5]])
+
+
+# for each portfolio, show there sharpe ratio under different regime
+portfolio = c("Stocks", "Bonds", "Gold", "Commodities", "Tbill")
+plotsq3 <- NULL
+for (i in seq(1:5)){
+plotsq3[[i]] <- filter(datasq3, portfolio == portfolio[i])}
+plotq3.1 <- function(data, portfolio, fill){
+ggplot(data)+
+  geom_col(aes(x = regime, y = sharpe), fill = fill) +
+  labs(title = paste(portfolio, "sharpe raio under different regimes"), x = "Regime", y = "Sharpe Ratio")+
+  theme_minimal()}
+
+plotq3.1(plotsq3[[1]], portfolio[1], "#505dbd")
+plotq3.1(plotsq3[[2]], portfolio[2], "#2b2b2b")
+plotq3.1(plotsq3[[3]], portfolio[3], "#875700")
+plotq3.1(plotsq3[[4]], portfolio[4], "#003087")
+plotq3.1(plotsq3[[5]], portfolio[5], "#00472e")
+
+
+datasq3[, c(1,2,5)] %>% arrange(portfolio, decreasing = FALSE) %>% .[16:25,]  %>% View()
+
+color_mapping <- c("Stocks" = "#505dbd", "Bonds" = "#2b2b2b", "Gold" = "#875700", "Commodities" = "#003087", "Tbill" = "#00472e")
+ggplot(datasq3)+
+  geom_col(aes(x = regime, y = sharpe, fill = portfolio), position = "dodge")+
+  scale_fill_manual(values = color_mapping) +
+  labs(title = "Sharpe Ratio of Portfolios under each Regime", x = "Regime", y = "Sharpe Rario")+
+  theme_minimal()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

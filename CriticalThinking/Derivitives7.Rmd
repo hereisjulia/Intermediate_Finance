@@ -1,0 +1,160 @@
+---
+title: "derivatives"
+author: "Julia"
+date: "2023-12-04"
+output: html_document
+---
+
+Some Variables
+```{r}
+S0 <- 100
+K <- 100
+r <- 0.05
+sigma <- 0.2
+T <- 3/12
+
+t <- 0
+d1.0 <- (log(S0/K)+(r+ 0.5*sigma^2)*(T-t))/ (sigma*sqrt(T-t))
+d2.0 <- d1.0 - sigma*sqrt(T-t)
+
+N.d1.0 <- pnorm(d1.0, mean = 0, sd = 1, lower.tail = TRUE)
+N.d2.0 <- pnorm(d2.0, mean = 0, sd = 1, lower.tail = TRUE)
+N._d1.0 <- pnorm(d1.0, mean = 0, sd = 1, lower.tail = FALSE)
+N._d2.0 <- pnorm(d2.0, mean = 0, sd = 1, lower.tail = FALSE)
+
+CallPrice <- S0*N.d1.0 - K*exp(-r*T)*N.d2.0
+PutPrice <- K*exp(-r*T)*N._d2.0 - S0*N._d1.0
+V0 <- CallPrice+PutPrice
+```
+
+Calculate the delta
+```{r}
+deltaCall <- N.d1.0
+deltaPut <- N.d1.0 -1
+delta <- deltaCall+deltaPut
+
+library(Ryacas)
+N..d1 <- 0.392880009       # N'(d1)
+gammaCall <- N..d1/(S0*sigma*sqrt(T-t))
+gammaPut <- N..d1/(S0*sigma*sqrt(T-t))
+gamma <- gammaCall+gammaPut
+
+VegaCall <- sqrt(T-t)*S0*N..d1
+VegaPut <- sqrt(T-t)*S0*N..d1
+Vega <- VegaCall+VegaPut
+
+ThetaCall <- -(S0*N..d1*sigma)/(2*sqrt(T-t)) - r*K*exp(-r*(T-t))*N.d2.0
+ThetaPut <- -(S0*N..d1*sigma)/(2*sqrt(T-t)) + r*K*exp(-r*(T-t))*(1-N.d2.0)
+Theta <- ThetaCall+ThetaPut
+```
+
+c)
+```{r}
+t = 1/365
+S1 = 99
+sigma.1 = 0.22
+
+
+d1.1 <- (log(S1/K)+(r+ 0.5*sigma.1^2)*(T-t))/ (sigma.1*sqrt(T-t))
+d2.1 <- d1.1 - sigma.1*sqrt(T-t)
+N.d1.1 <- pnorm(d1.1, mean = 0, sd = 1, lower.tail = TRUE)
+N.d2.1 <- pnorm(d2.1, mean = 0, sd = 1, lower.tail = TRUE)
+N._d1.1 <- pnorm(d1.1, mean = 0, sd = 1, lower.tail = FALSE)
+N._d2.1 <- pnorm(d2.1, mean = 0, sd = 1, lower.tail = FALSE)
+N..d1.1 <- 0.397797 #N'(d1)
+
+CallPrice.1 <- S1*N.d1.1 - K*exp(-r*T)*N.d2.1
+PutPrice.1 <- K*exp(-r*T)*N._d2.1 - S1*N._d1.1
+V1 <- CallPrice.1+PutPrice.1
+
+##Calculate Delta, Gamma, Vega, Theta
+
+deltaCall.1 <- N.d1.1
+deltaPut.1 <- N.d1.1 - 1
+delta.1 <- deltaCall.1 +deltaPut.1
+
+gammaCall.1 <- N..d1.1/(S1*sigma.1*sqrt(T-t))
+gammaPut.1 <- N..d1.1/(S1*sigma.1*sqrt(T-t))
+gamma.1 <- gammaCall.1 +gammaPut.1
+
+VegaCall.1 <- sqrt(T-t)*S1*N..d1.1
+VegaPut.1 <- sqrt(T-t)*S1*N..d1.1
+Vega.1 = VegaCall.1+ VegaPut.1
+
+ThetaCall.1 <- -(S1*N..d1.1*sigma.1)/(2*sqrt(T-t)) - r*K*exp(-r*(T-t))*N.d2.1
+ThetaPut.1 <- -(S1*N..d1.1*sigma.1)/(2*sqrt(T-t)) + r*K*exp(-r*(T-t))*(1-N.d2.1)
+Theta.1 <- ThetaCall.1+ThetaPut.1
+```
+
+#Part 3
+```{r}
+library(readr)
+sp500 <- read_csv("CriticalThinking/spx_jan2023_data.csv", skip = 2)
+columnNames <- c("Weekdays", "Expiration_Date","Calls","Last_Sale", "Net", "Bid", "Ask", "Volume", "Delta", "Gamma", "Open_Interest", "Strike", "Puts", "Last_Sale.P", "Net.P", "Bid.P", "Ask.P", "Volume.P", "Delta.P", "Gamma.P", "Open_Interest.P")
+names(sp500) <- columnNames
+```
+
+```{r}
+Current = 4071.7
+
+##Selecting data
+library(tidyverse)
+strikeRange <- c(Current-0.2*Current, Current+0.2*Current, Current-0.1*Current, Current+0.1*Current)
+sp500. <- sp500 %>% filter(Strike > strikeRange[1]) %>% filter(Strike < strikeRange[2])
+calls <- sp500.[,1:12] %>% 
+  mutate(Money = ifelse(Strike < Current, "ITM", "OTM"), 
+         Callput = "Call",
+         Midpoint = (Bid+Ask)/2)
+puts <- cbind(sp500.[,1:2], sp500.[,13:21], sp500.[,12]) %>% 
+  mutate(Money = ifelse(Strike > Current, "ITM", "OTM"), 
+         Callput = "Put",
+         Midpoint = (Bid.P+Ask.P)/2)
+
+ATMcall <- calls%>% filter(Strike > Current-6) %>% filter(Strike < Current+6)
+ATMput <- puts%>% filter(Strike > Current-6) %>% filter(Strike < Current+6)
+
+
+ITM10Calls <- calls %>% filter(Money =="ITM") %>% .[c(50,60,70,80,90,100,110,120,130, 140),]
+OTM10Calls <- calls %>% filter(Money =="OTM") %>% .[c(10,20,30,40,50,60,70,80,90,96),]
+CallsSelect <- rbind(ITM10Calls,OTM10Calls)
+
+ITM10Puts <- puts %>% filter(Money =="ITM") %>% .[c(10,20,30,40,50,60,70,80,85,90),]
+OTM10Puts <- puts %>% filter(Money =="OTM") %>% .[c(40, 50,60,70,80,90,100,110,120,130),]
+ITM10Puts
+OTM10Puts
+PutsSelect <- rbind(ITM10Puts,OTM10Puts)
+```
+
+```{r}
+div_yield = 0.016 
+
+S0 <- Current
+K <- CallsSelect$Strike
+r <- 0.041
+T <- 45/365
+
+CallsSelect$Midpoint = CallPrice
+
+
+
+t <- 0
+d1.0 <- (log(S0/K)+(r+ 0.5*sigma^2)*(T-t))/ (sigma*sqrt(T-t))
+d2.0 <- d1.0 - sigma*sqrt(T-t)
+
+N.d1.0 <- pnorm(d1.0, mean = 0, sd = 1, lower.tail = TRUE)
+N.d2.0 <- pnorm(d2.0, mean = 0, sd = 1, lower.tail = TRUE)
+N._d1.0 <- pnorm(d1.0, mean = 0, sd = 1, lower.tail = FALSE)
+N._d2.0 <- pnorm(d2.0, mean = 0, sd = 1, lower.tail = FALSE)
+exp(-r*T)*K
+
+CallPrice <- S0*N.d1.0 - K*exp(-r*T)*N.d2.0
+PutPrice <- K*exp(-r*T)*N._d2.0 - S0*N._d1.0
+V0 <- CallPrice+PutPrice
+```
+
+
+
+
+
+
+
